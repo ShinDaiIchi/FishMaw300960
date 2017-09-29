@@ -581,15 +581,30 @@ void loop() {
       int n = wifi_softap_get_station_num();
       Serial.printf("[STATION LIST] %d stations\n", n);
       if( n ) {
-        char macstr[20]; int i=1;
-        struct station_info *sta_info = wifi_softap_get_station_info();
-        while ( sta_info != NULL) {
-          sprintf( macstr, "%02X:%02X:%02X:%02X:%02X:%02X", 
-              sta_info->bssid[0],sta_info->bssid[1],sta_info->bssid[2],
-              sta_info->bssid[3],sta_info->bssid[4],sta_info->bssid[5]);
-          Serial.printf("[STATION LIST] %d. %s -> %s\n", i++, macstr, (char*)(IPAddress(sta_info->ip.addr).toString().c_str()) );
-          sta_info = sta_info->next;
-        }
+        // แบบที่รับจาก dhcpserver.h
+        int dhcps_count=0; 
+        struct dhcps_pool *dhcps_p = dhcps_get_mapping(dhcps_count++);
+        while(dhcps_p !=NULL){
+          time_t lease_clock = time(nullptr); 
+          char lease_timestr[20]="";
+
+          if(lease_clock > 1000) {
+            lease_clock += 60*dhcps_p->lease_timer;
+            struct tm timeinfo;
+            gmtime_r(&lease_clock, &timeinfo);
+            sprintf(lease_timestr, "%02d/%02d/%d %02d:%02d", 
+                      timeinfo.tm_mday, timeinfo.tm_mon, 1900+timeinfo.tm_year,
+                      timeinfo.tm_hour, timeinfo.tm_min + (timeinfo.tm_sec)? 1 :0);
+          }
+          
+          Serial.printf("       sta%02d : %s    %s    %d mins    %s\n",
+                        dhcps_count,
+                        mac2String(dhcps_p->mac).c_str(), 
+                        IPAddress(dhcps_p->ip.addr).toString().c_str(),
+                        dhcps_p->lease_timer, 
+                        lease_timestr );
+          dhcps_p = dhcps_get_mapping(dhcps_count++);
+        };
       }
     } //end if STA_LIST   
     else if(command == "AP_LIST" || command == "APLIST"){
@@ -797,15 +812,32 @@ void loop() {
       int n= wifi_softap_get_station_num();
       Serial.printf("    stations : %d\n",n);
       if( n ) {
-        char macstr[20]; int i=1;
-        struct station_info* sta_info = wifi_softap_get_station_info();
-        while ( sta_info != NULL) {
-          sprintf( macstr, "%02X:%02X:%02X:%02X:%02X:%02X", 
-              sta_info->bssid[0],sta_info->bssid[1],sta_info->bssid[2],
-              sta_info->bssid[3],sta_info->bssid[4],sta_info->bssid[5]);
-          Serial.printf("       sta%02d : %s = %s\n", i++, (char*)(IPAddress(sta_info->ip.addr).toString().c_str()), macstr );
-          sta_info = sta_info->next;
-        }
+        char macstr[20];
+        // แบบที่รับจาก dhcpserver.h
+        int dhcps_count=0; 
+        struct dhcps_pool *dhcps_p = dhcps_get_mapping(dhcps_count++);
+        while(dhcps_p !=NULL){
+          time_t lease_clock = time(nullptr); 
+          char lease_timestr[20]="";
+
+          if(lease_clock > 1000) {
+            lease_clock += 60*dhcps_p->lease_timer;
+            struct tm timeinfo;
+            gmtime_r(&lease_clock, &timeinfo);
+            sprintf(lease_timestr, "%02d/%02d/%d %02d:%02d", 
+                      timeinfo.tm_mday, timeinfo.tm_mon, 1900+timeinfo.tm_year,
+                      timeinfo.tm_hour, timeinfo.tm_min + (timeinfo.tm_sec)? 1 :0);
+          }
+          
+          Serial.printf("       sta%02d : %s    %s    %d mins    %s\n",
+                        dhcps_count,
+                        mac2String(dhcps_p->mac).c_str(), 
+                        IPAddress(dhcps_p->ip.addr).toString().c_str(),
+                        dhcps_p->lease_timer, 
+                        lease_timestr );
+          dhcps_p = dhcps_get_mapping(dhcps_count++);
+        };
+
       }
       
       struct portmap_table *p;
