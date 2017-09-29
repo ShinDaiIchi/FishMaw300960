@@ -403,19 +403,19 @@ void setup() {
   config_load(&config);
 
   WiFi.hostname((char*)config.hostname);
+  Serial.printf("μ-Trident8266 : %s\n",WiFi.hostname().c_str());
 
   if( config.uTridentFirstRun != 0){
     char timestr_buf[10];
     struct tm timeinfo;
     gmtime_r(&config.uTridentFirstRun, &timeinfo);
-    Serial.printf("μ-Trident8266 start on  %02d/%02d/%02d %02d:%02d:%02d\n", 
+    Serial.printf("   start on  %02d/%02d/%02d %02d:%02d:%02d\n", 
       timeinfo.tm_mday, timeinfo.tm_mon, 1900+timeinfo.tm_year,
       timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
-    //MAX_DAYS_LIMIT
 
     expire_time = config.uTridentFirstRun + config.expire_limit;
     gmtime_r(&expire_time, &timeinfo);
-    Serial.printf("              expire on %02d/%02d/%02d %02d:%02d:%02d\n", 
+    Serial.printf("   expire on %02d/%02d/%02d %02d:%02d:%02d\n", 
       timeinfo.tm_mday, timeinfo.tm_mon, 1900+timeinfo.tm_year,
       timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
   }
@@ -764,22 +764,22 @@ void loop() {
     else if(command == "SHOW"){
 
       Serial.println();
+      Serial.printf("μ-Trident8266 : %s\n",WiFi.hostname().c_str());
+    
       if( config.uTridentFirstRun != 0){
         char timestr_buf[10];
         struct tm timeinfo;
         gmtime_r(&config.uTridentFirstRun, &timeinfo);
-        Serial.printf("μ-Trident8266 start on  %02d/%02d/%02d %02d:%02d:%02d\n", 
+        Serial.printf("   start on  %02d/%02d/%02d %02d:%02d:%02d\n", 
           timeinfo.tm_mday, timeinfo.tm_mon, 1900+timeinfo.tm_year,
           timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
-        //MAX_DAYS_LIMIT
     
         expire_time = config.uTridentFirstRun + config.expire_limit;
         gmtime_r(&expire_time, &timeinfo);
-        Serial.printf("              expire on %02d/%02d/%02d %02d:%02d:%02d\n\n", 
+        Serial.printf("   expire on %02d/%02d/%02d %02d:%02d:%02d\n", 
           timeinfo.tm_mday, timeinfo.tm_mon, 1900+timeinfo.tm_year,
           timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
       }
-
   
       Serial.println("WIFI:");
       Serial.printf("  STA:\n    ssid     : %s\n    password : %s\n",
